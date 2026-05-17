@@ -309,9 +309,15 @@ class OCRWorker(threading.Thread):
             from glmocr.config import load_config as _load_cfg
             import glmocr as _glm_pkg
 
+            import torch as _torch
+            _mps_ok = _torch.backends.mps.is_available()
+            _device  = "mps" if _mps_ok else "cpu"
             OCRWorker._processor = AutoProcessor.from_pretrained(self.MODEL_PATH)
             OCRWorker._model = AutoModelForImageTextToText.from_pretrained(
-                self.MODEL_PATH, torch_dtype="auto", device_map="auto"
+                self.MODEL_PATH,
+                dtype=_torch.bfloat16,
+                low_cpu_mem_usage=True,
+                device_map={"": _device},
             )
             OCRWorker._model.eval()
 
@@ -467,11 +473,14 @@ class OCRWorker(threading.Thread):
             ).to(OCRWorker._model.device)
             inputs.pop("token_type_ids", None)
             with torch.no_grad():
-                ids = OCRWorker._model.generate(**inputs, max_new_tokens=2048)
-            return OCRWorker._processor.decode(
+                ids = OCRWorker._model.generate(**inputs, max_new_tokens=1024)
+            result = OCRWorker._processor.decode(
                 ids[0][inputs["input_ids"].shape[1]:],
                 skip_special_tokens=True,
             ).strip()
+            if torch.backends.mps.is_available():
+                torch.mps.empty_cache()
+            return result
         finally:
             Path(tmp.name).unlink(missing_ok=True)
 
