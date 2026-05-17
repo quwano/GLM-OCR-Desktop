@@ -54,7 +54,7 @@ GLM-OCR-Desktop は、PDF・PNG・JPG ファイルを読み込み、OCR 結果�
 
 ### Python
 
-[python.org](https://www.python.org/downloads/release/python-31113/) 版の Python 3.11 が必要です。
+[python.org](https://www.python.org/downloads/release/python-3119/) 版の Python 3.11 が必要です。
 macOS の Homebrew 版 Python には tkinter が含まれないため、python.org 版を使用してください。
 
 ## 必要な空き容量

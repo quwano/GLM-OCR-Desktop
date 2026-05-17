@@ -112,10 +112,10 @@ else
     echo "         Homebrew-Python enthält KEIN tkinter — die python.org-Version ist erforderlich."
     echo ""
 
-    PY_PKG="/tmp/python-3.11.13-macos11.pkg"
-    PY_URL="https://www.python.org/ftp/python/3.11.13/python-3.11.13-macos11.pkg"
+    PY_PKG="/tmp/python-3.11.9-macos11.pkg"
+    PY_URL="https://www.python.org/ftp/python/3.11.9/python-3.11.9-macos11.pkg"
 
-    echo "Python 3.11.13 wird heruntergeladen..."
+    echo "Python 3.11.9 wird heruntergeladen..."
     if curl -L --progress-bar -o "$PY_PKG" "$PY_URL"; then
         echo "Download abgeschlossen. Installation wird gestartet..."
         echo "(Ihr Systempasswort wird abgefragt.)"
@@ -129,16 +129,16 @@ else
             echo ""
             echo -e "${RED}[Fehler] Python-Installation fehlgeschlagen.${NC}"
             echo "Bitte manuell installieren:"
-            echo "  https://www.python.org/downloads/release/python-31113/"
-            echo "  Datei: python-3.11.13-macos11.pkg"
+            echo "  https://www.python.org/downloads/release/python-3119/"
+            echo "  Datei: python-3.11.9-macos11.pkg"
             echo ""
         fi
     else
         echo ""
         echo -e "${RED}[Fehler] Download des Python-Installers fehlgeschlagen.${NC}"
         echo "Bitte manuell herunterladen:"
-        echo "  https://www.python.org/downloads/release/python-31113/"
-        echo "  Datei: python-3.11.13-macos11.pkg"
+        echo "  https://www.python.org/downloads/release/python-3119/"
+        echo "  Datei: python-3.11.9-macos11.pkg"
         echo ""
     fi
 fi
@@ -234,10 +234,10 @@ ask_continue
 # ============================================================
 write_header "Schritt 4 / 5  :  KI-Modelle herunterladen"
 
-HF_CLI="$VENV_DIR/bin/huggingface-cli"
+HF_CLI="$VENV_DIR/bin/hf"
 
 if [ ! -f "$HF_CLI" ]; then
-    echo -e "${RED}[Fehler] huggingface-cli nicht gefunden. Bitte Schritt 3 prüfen.${NC}"
+    echo -e "${RED}[Fehler] hf-Befehl nicht gefunden. Bitte Schritt 3 prüfen.${NC}"
 else
     echo "Herunterzuladende Modelle:"
     echo "  zai-org/GLM-OCR                          (~2,5 GB)"

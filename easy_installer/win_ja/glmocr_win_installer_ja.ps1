@@ -10,7 +10,7 @@ $ProjectDir = Split-Path -Parent (Split-Path -Parent $ScriptDir)
 $VenvDir = Join-Path $ProjectDir ".venv_bundle"
 $VenvPip = Join-Path $VenvDir "Scripts\pip.exe"
 $VenvPython = Join-Path $VenvDir "Scripts\python.exe"
-$HfCli = Join-Path $VenvDir "Scripts\huggingface-cli.exe"
+$HfCli = Join-Path $VenvDir "Scripts\hf.exe"
 
 # ============================================================
 # ユーティリティ関数
@@ -113,20 +113,20 @@ try {
 if (-not $pyOk) {
     Write-Host "Python 3.11 が見つかりません。ダウンロードしてインストールします..."
     Write-Host ""
-    $pyInstaller = "$env:TEMP\python-3.11.13-amd64.exe"
+    $pyInstaller = "$env:TEMP\python-3.11.9-amd64.exe"
 
-    Write-Host "Python 3.11.13 をダウンロード中..."
+    Write-Host "Python 3.11.9 をダウンロード中..."
     $downloadOk = $true
     try {
-        Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.11.13/python-3.11.13-amd64.exe' `
+        Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.11.9/python-3.11.9-amd64.exe' `
             -OutFile $pyInstaller -ErrorAction Stop
     } catch {
         $downloadOk = $false
         Write-Host ""
         Write-Host "[エラー] Python インストーラのダウンロードに失敗しました。" -ForegroundColor Red
         Write-Host "手動でダウンロードしてください:"
-        Write-Host "  https://www.python.org/downloads/release/python-31113/"
-        Write-Host "  ファイル: python-3.11.13-amd64.exe"
+        Write-Host "  https://www.python.org/downloads/release/python-3119/"
+        Write-Host "  ファイル: python-3.11.9-amd64.exe"
         Write-Host ""
     }
 
@@ -138,7 +138,7 @@ if (-not $pyOk) {
             Write-Host ""
             Write-Host "[エラー] Python のインストールに失敗しました（終了コード: $($result.ExitCode)）。" -ForegroundColor Red
             Write-Host "手動でインストールしてください:"
-            Write-Host "  https://www.python.org/downloads/release/python-31113/"
+            Write-Host "  https://www.python.org/downloads/release/python-3119/"
             Write-Host ""
         } else {
             $pyPath = "$env:LOCALAPPDATA\Programs\Python\Python311"
@@ -241,7 +241,7 @@ Ask-Continue
 Write-Header "Step 4 / 5  :  AI モデルのダウンロード"
 
 if (-not (Test-Path $HfCli)) {
-    Write-Host "[エラー] huggingface-cli が見つかりません。Step 3 を確認してください。" -ForegroundColor Red
+    Write-Host "[エラー] hf コマンドが見つかりません。Step 3 を確認してください。" -ForegroundColor Red
 } else {
     Write-Host "ダウンロードするモデル:"
     Write-Host "  zai-org/GLM-OCR                          （約2.5 GB）"

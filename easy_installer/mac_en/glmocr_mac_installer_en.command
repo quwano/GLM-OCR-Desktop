@@ -112,10 +112,10 @@ else
     echo "      Homebrew Python does NOT include tkinter — python.org version is required."
     echo ""
 
-    PY_PKG="/tmp/python-3.11.13-macos11.pkg"
-    PY_URL="https://www.python.org/ftp/python/3.11.13/python-3.11.13-macos11.pkg"
+    PY_PKG="/tmp/python-3.11.9-macos11.pkg"
+    PY_URL="https://www.python.org/ftp/python/3.11.9/python-3.11.9-macos11.pkg"
 
-    echo "Downloading Python 3.11.13..."
+    echo "Downloading Python 3.11.9..."
     if curl -L --progress-bar -o "$PY_PKG" "$PY_URL"; then
         echo "Download complete. Starting installation..."
         echo "(Your system password will be prompted.)"
@@ -129,16 +129,16 @@ else
             echo ""
             echo -e "${RED}[Error] Python installation failed.${NC}"
             echo "Please install manually:"
-            echo "  https://www.python.org/downloads/release/python-31113/"
-            echo "  File: python-3.11.13-macos11.pkg"
+            echo "  https://www.python.org/downloads/release/python-3119/"
+            echo "  File: python-3.11.9-macos11.pkg"
             echo ""
         fi
     else
         echo ""
         echo -e "${RED}[Error] Failed to download the Python installer.${NC}"
         echo "Please download manually:"
-        echo "  https://www.python.org/downloads/release/python-31113/"
-        echo "  File: python-3.11.13-macos11.pkg"
+        echo "  https://www.python.org/downloads/release/python-3119/"
+        echo "  File: python-3.11.9-macos11.pkg"
         echo ""
     fi
 fi
@@ -234,10 +234,10 @@ ask_continue
 # ============================================================
 write_header "Step 4 / 5  :  Download AI models"
 
-HF_CLI="$VENV_DIR/bin/huggingface-cli"
+HF_CLI="$VENV_DIR/bin/hf"
 
 if [ ! -f "$HF_CLI" ]; then
-    echo -e "${RED}[Error] huggingface-cli not found. Please check Step 3.${NC}"
+    echo -e "${RED}[Error] hf command not found. Please check Step 3.${NC}"
 else
     echo "Models to download:"
     echo "  zai-org/GLM-OCR                          (~2.5 GB)"

@@ -54,7 +54,7 @@ For manual installation, see [Requirements](#requirements) below.
 
 ### Python
 
-Python 3.11 from [python.org](https://www.python.org/downloads/release/python-31113/) is required.
+Python 3.11 from [python.org](https://www.python.org/downloads/release/python-3119/) is required.
 The python.org version includes tkinter, which is not available in Homebrew Python on macOS.
 
 ## Disk Space

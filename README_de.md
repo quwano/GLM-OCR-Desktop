@@ -54,7 +54,7 @@ Für die manuelle Installation siehe [Voraussetzungen](#voraussetzungen) weiter 
 
 ### Python
 
-Python 3.11 von [python.org](https://www.python.org/downloads/release/python-31113/) ist erforderlich.
+Python 3.11 von [python.org](https://www.python.org/downloads/release/python-3119/) ist erforderlich.
 Die python.org-Version enthält tkinter, das in der Homebrew-Version von Python unter macOS nicht verfügbar ist.
 
 ## Benötigter Speicherplatz

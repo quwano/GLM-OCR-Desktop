@@ -10,7 +10,7 @@ $ProjectDir = Split-Path -Parent (Split-Path -Parent $ScriptDir)
 $VenvDir = Join-Path $ProjectDir ".venv_bundle"
 $VenvPip = Join-Path $VenvDir "Scripts\pip.exe"
 $VenvPython = Join-Path $VenvDir "Scripts\python.exe"
-$HfCli = Join-Path $VenvDir "Scripts\huggingface-cli.exe"
+$HfCli = Join-Path $VenvDir "Scripts\hf.exe"
 
 # ============================================================
 # Utility functions
@@ -113,20 +113,20 @@ try {
 if (-not $pyOk) {
     Write-Host "Python 3.11 not found. Downloading and installing..."
     Write-Host ""
-    $pyInstaller = "$env:TEMP\python-3.11.13-amd64.exe"
+    $pyInstaller = "$env:TEMP\python-3.11.9-amd64.exe"
 
-    Write-Host "Downloading Python 3.11.13..."
+    Write-Host "Downloading Python 3.11.9..."
     $downloadOk = $true
     try {
-        Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.11.13/python-3.11.13-amd64.exe' `
+        Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.11.9/python-3.11.9-amd64.exe' `
             -OutFile $pyInstaller -ErrorAction Stop
     } catch {
         $downloadOk = $false
         Write-Host ""
         Write-Host "[Error] Failed to download the Python installer." -ForegroundColor Red
         Write-Host "Please download manually:"
-        Write-Host "  https://www.python.org/downloads/release/python-31113/"
-        Write-Host "  File: python-3.11.13-amd64.exe"
+        Write-Host "  https://www.python.org/downloads/release/python-3119/"
+        Write-Host "  File: python-3.11.9-amd64.exe"
         Write-Host ""
     }
 
@@ -138,7 +138,7 @@ if (-not $pyOk) {
             Write-Host ""
             Write-Host "[Error] Python installation failed (exit code: $($result.ExitCode))." -ForegroundColor Red
             Write-Host "Please install manually:"
-            Write-Host "  https://www.python.org/downloads/release/python-31113/"
+            Write-Host "  https://www.python.org/downloads/release/python-3119/"
             Write-Host ""
         } else {
             $pyPath = "$env:LOCALAPPDATA\Programs\Python\Python311"
@@ -241,7 +241,7 @@ Ask-Continue
 Write-Header "Step 4 / 5  :  Download AI models"
 
 if (-not (Test-Path $HfCli)) {
-    Write-Host "[Error] huggingface-cli not found. Please check Step 3." -ForegroundColor Red
+    Write-Host "[Error] hf command not found. Please check Step 3." -ForegroundColor Red
 } else {
     Write-Host "Models to download:"
     Write-Host "  zai-org/GLM-OCR                          (~2.5 GB)"

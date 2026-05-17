@@ -112,10 +112,10 @@ else
     echo "      Homebrew 版 Python には tkinter が含まれません — python.org 版が必要です。"
     echo ""
 
-    PY_PKG="/tmp/python-3.11.13-macos11.pkg"
-    PY_URL="https://www.python.org/ftp/python/3.11.13/python-3.11.13-macos11.pkg"
+    PY_PKG="/tmp/python-3.11.9-macos11.pkg"
+    PY_URL="https://www.python.org/ftp/python/3.11.9/python-3.11.9-macos11.pkg"
 
-    echo "Python 3.11.13 をダウンロード中..."
+    echo "Python 3.11.9 をダウンロード中..."
     if curl -L --progress-bar -o "$PY_PKG" "$PY_URL"; then
         echo "ダウンロード完了。インストールを開始します..."
         echo "（システムパスワードの入力を求められます）"
@@ -129,16 +129,16 @@ else
             echo ""
             echo -e "${RED}[エラー] Python のインストールに失敗しました。${NC}"
             echo "手動でインストールしてください:"
-            echo "  https://www.python.org/downloads/release/python-31113/"
-            echo "  ファイル: python-3.11.13-macos11.pkg"
+            echo "  https://www.python.org/downloads/release/python-3119/"
+            echo "  ファイル: python-3.11.9-macos11.pkg"
             echo ""
         fi
     else
         echo ""
         echo -e "${RED}[エラー] Python インストーラのダウンロードに失敗しました。${NC}"
         echo "手動でダウンロードしてください:"
-        echo "  https://www.python.org/downloads/release/python-31113/"
-        echo "  ファイル: python-3.11.13-macos11.pkg"
+        echo "  https://www.python.org/downloads/release/python-3119/"
+        echo "  ファイル: python-3.11.9-macos11.pkg"
         echo ""
     fi
 fi
@@ -234,10 +234,10 @@ ask_continue
 # ============================================================
 write_header "Step 4 / 5  :  AI モデルのダウンロード"
 
-HF_CLI="$VENV_DIR/bin/huggingface-cli"
+HF_CLI="$VENV_DIR/bin/hf"
 
 if [ ! -f "$HF_CLI" ]; then
-    echo -e "${RED}[エラー] huggingface-cli が見つかりません。Step 3 を確認してください。${NC}"
+    echo -e "${RED}[エラー] hf コマンドが見つかりません。Step 3 を確認してください。${NC}"
 else
     echo "ダウンロードするモデル:"
     echo "  zai-org/GLM-OCR                          （約2.5 GB）"
