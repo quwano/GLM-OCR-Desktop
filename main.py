@@ -310,8 +310,12 @@ class OCRWorker(threading.Thread):
             import glmocr as _glm_pkg
 
             import torch as _torch
-            _mps_ok = _torch.backends.mps.is_available()
-            _device  = "mps" if _mps_ok else "cpu"
+            if _torch.backends.mps.is_available():
+                _device = "mps"
+            elif _torch.cuda.is_available():
+                _device = "cuda"
+            else:
+                _device = "cpu"
             OCRWorker._processor = AutoProcessor.from_pretrained(self.MODEL_PATH)
             OCRWorker._model = AutoModelForImageTextToText.from_pretrained(
                 self.MODEL_PATH,
@@ -480,6 +484,8 @@ class OCRWorker(threading.Thread):
             ).strip()
             if torch.backends.mps.is_available():
                 torch.mps.empty_cache()
+            elif torch.cuda.is_available():
+                torch.cuda.empty_cache()
             return result
         finally:
             Path(tmp.name).unlink(missing_ok=True)
