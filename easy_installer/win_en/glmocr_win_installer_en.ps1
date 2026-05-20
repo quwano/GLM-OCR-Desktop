@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # GLM-OCR-Desktop Windows Setup Installer (English)
 
 $Host.UI.RawUI.WindowTitle = "GLM-OCR-Desktop Setup Installer"
