@@ -460,9 +460,16 @@ class OCRWorker(threading.Thread):
             md = _to_markdown(txt)
         return md, txt
 
+    # MPS/CUDA OOM を防ぐため、モデルに渡す画像の長辺上限（ピクセル）
+    _MAX_OCR_SIDE = 1600
+
     def _ocr_image(self, image: Image.Image, prompt: str = "Text Recognition:") -> str:
         """PIL Image を一時ファイル経由でGLM-OCRに渡してテキストを返す。"""
         import torch
+        w, h = image.size
+        if max(w, h) > self._MAX_OCR_SIDE:
+            scale = self._MAX_OCR_SIDE / max(w, h)
+            image = image.resize((int(w * scale), int(h * scale)), Image.LANCZOS)
         tmp = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
         image.save(tmp.name, "PNG")
         tmp.close()
@@ -477,7 +484,11 @@ class OCRWorker(threading.Thread):
             ).to(OCRWorker._model.device)
             inputs.pop("token_type_ids", None)
             with torch.no_grad():
-                ids = OCRWorker._model.generate(**inputs, max_new_tokens=1024)
+                ids = OCRWorker._model.generate(
+                    **inputs,
+                    max_new_tokens=768,
+                    repetition_penalty=1.15,
+                )
             result = OCRWorker._processor.decode(
                 ids[0][inputs["input_ids"].shape[1]:],
                 skip_special_tokens=True,
@@ -486,9 +497,30 @@ class OCRWorker(threading.Thread):
                 torch.mps.empty_cache()
             elif torch.cuda.is_available():
                 torch.cuda.empty_cache()
+            # 表（HTML構造で同じようなタグ行が連続する）はループ判定の対象外にする
+            if prompt != "Table Recognition:" and self._is_loop_output(result):
+                print(f"[OCRWorker] ループ出力を検出したため破棄: prompt={prompt!r}, "
+                      f"先頭200文字={result[:200]!r}")
+                return ""
             return result
         finally:
             Path(tmp.name).unlink(missing_ok=True)
+
+    @staticmethod
+    def _is_loop_output(text: str, min_lines: int = 8, ratio: float = 0.6) -> bool:
+        """同一行が繰り返されるハルシネーションループ出力、またはコードフェンスのみの無効出力を検出する。"""
+        import re
+        from collections import Counter
+        lines = [l for l in text.splitlines() if l.strip()]
+        if not lines:
+            return False
+        # コードフェンス(```)だけで構成されている出力を弾く
+        if all(re.match(r"^`{3}", l) for l in lines):
+            return True
+        if len(lines) < min_lines:
+            return False
+        top_count = Counter(lines).most_common(1)[0][1]
+        return top_count / len(lines) >= ratio
 
     @staticmethod
     def _html_table_to_gfm(html: str) -> str:
