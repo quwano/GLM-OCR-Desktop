@@ -103,6 +103,19 @@ When Markdown is selected, the document structure is preserved:
 
 Plain Text mode outputs unformatted text without any Markdown notation.
 
+## Output Mode (Single File / Per File)
+
+When you load multiple files and run OCR, you can choose the output mode when saving
+(this setting has no effect if only one input file was loaded):
+
+- **Single File**: Save all page results combined into one file (the original behavior)
+- **Per File**: Save a separate output file for each input file.
+  The output file name matches the original input file name
+
+When "Per File" is selected, clicking Save simply opens a folder picker — no file name
+entry is required. If multiple output files would share the same name, a number suffix
+(`_2`, `_3`, …) is added automatically.
+
 ## Keyboard Shortcuts
 
 | Key | Action |

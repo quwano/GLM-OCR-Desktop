@@ -103,6 +103,20 @@ Bei der Auswahl von Markdown wird die Dokumentstruktur beibehalten:
 
 Im Nur-Text-Modus wird unformatierter Text ohne Markdown-Notation ausgegeben.
 
+## Ausgabemodus (Einzeldatei / Pro Datei)
+
+Wenn Sie mehrere Dateien laden und OCR ausführen, können Sie beim Speichern den
+Ausgabemodus wählen (diese Einstellung hat keine Auswirkung, wenn nur eine Eingabedatei
+geladen wurde):
+
+- **Einzeldatei**: Speichert die Ergebnisse aller Seiten zusammen in einer Datei (bisheriges Verhalten)
+- **Pro Datei**: Speichert für jede Eingabedatei eine eigene Ausgabedatei.
+  Der Dateiname der Ausgabe entspricht dem Namen der ursprünglichen Eingabedatei
+
+Bei Auswahl von „Pro Datei" öffnet ein Klick auf Speichern lediglich einen
+Ordnerauswahl-Dialog — eine Eingabe des Dateinamens ist nicht nötig. Bei doppelten
+Dateinamen wird automatisch eine Nummer angehängt (`_2`, `_3` …).
+
 ## Tastaturkürzel
 
 | Taste | Aktion |

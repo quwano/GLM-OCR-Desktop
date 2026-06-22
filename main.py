@@ -52,6 +52,9 @@ _TR: dict[str, dict[str, str]] = {
     "btn_save":           {"ja": "💾 保存",                "de": "💾 Speichern",                              "en": "💾 Save"},
     "label_format":       {"ja": "出力形式:",              "de": "Format:",                                  "en": "Format:"},
     "radio_plain":        {"ja": "プレーンテキスト",       "de": "Nur Text",                                 "en": "Plain Text"},
+    "label_outmode":      {"ja": "出力単位:",              "de": "Ausgabe:",                                 "en": "Output:"},
+    "radio_out_single":   {"ja": "単一ファイル",           "de": "Eine Datei",                               "en": "Single File"},
+    "radio_out_perfile":  {"ja": "ファイルごと",           "de": "Pro Datei",                                "en": "Per File"},
     "label_size":         {"ja": "サイズ:",                "de": "Größe:",                                   "en": "Size:"},
     "status_loading":     {"ja": "読み込み中: {name} …",  "de": "Lade: {name} …",                           "en": "Loading: {name} …"},
     "status_loaded":      {"ja": "{n} ページ読み込み済み", "de": "{n} Seite(n) geladen",                     "en": "{n} page(s) loaded"},
@@ -61,6 +64,7 @@ _TR: dict[str, dict[str, str]] = {
     "status_progress":    {"ja": "OCR処理中… {cur}/{total} ページ", "de": "OCR läuft… {cur}/{total} Seiten",          "en": "OCR in progress… {cur}/{total} page(s)"},
     "status_done":        {"ja": "OCR完了: {done}/{total} ページ",  "de": "OCR abgeschlossen: {done}/{total} Seiten", "en": "OCR complete: {done}/{total} page(s)"},
     "status_saved":       {"ja": "保存しました: {path}",            "de": "Gespeichert: {path}",                      "en": "Saved: {path}"},
+    "status_saved_multi": {"ja": "{n} ファイルを保存しました: {dir}", "de": "{n} Datei(en) gespeichert: {dir}",         "en": "Saved {n} file(s): {dir}"},
     "dlg_open_title":     {"ja": "ファイルを選択",         "de": "Datei auswählen",                          "en": "Select File"},
     "ftype_all":          {"ja": "対応ファイル",            "de": "Unterstützte Dateien",                     "en": "Supported Files"},
     "ftype_image":        {"ja": "画像ファイル",            "de": "Bilddateien",                              "en": "Image Files"},
@@ -930,6 +934,7 @@ class App(_BaseClass):  # type: ignore[misc]
         self._ocr_running = False
         self._timer_start: float = 0.0
         self._timer_running: bool = False
+        self._last_input_dir: str = ""
         self._build_ui()
         self.protocol("WM_DELETE_WINDOW", self._on_close)
         self.bind("<Command-a>", lambda e: self.thumb.select_all())
@@ -1018,6 +1023,14 @@ class App(_BaseClass):  # type: ignore[misc]
                        value="markdown", bg="#ebebeb",
                        command=self._refresh_result).pack(side="left", padx=4)
 
+        tk.Label(ctrl, text=T("label_outmode"), bg="#ebebeb",
+                 font=("Helvetica", 10)).pack(side="left", padx=(12, 0))
+        self._out_mode = tk.StringVar(value="single")
+        tk.Radiobutton(ctrl, text=T("radio_out_single"), variable=self._out_mode,
+                       value="single", bg="#ebebeb").pack(side="left", padx=4)
+        tk.Radiobutton(ctrl, text=T("radio_out_perfile"), variable=self._out_mode,
+                       value="per_file", bg="#ebebeb").pack(side="left", padx=4)
+
         tk.Button(ctrl, text=T("btn_save"), command=self._save,
                   bg="#2980b9", fg="black", relief="flat",
                   padx=8, pady=3, cursor="hand2").pack(side="right", padx=6)
@@ -1072,6 +1085,7 @@ class App(_BaseClass):  # type: ignore[misc]
             self.thumb.refresh()
             n = len(self.thumb.items)
             self._status.set(T("status_loaded", n=n))
+            self._last_input_dir = str(path.parent)
         except Exception as e:
             messagebox.showerror(T("dlg_load_error"), f"{path.name}\n{e}")
         finally:
@@ -1240,21 +1254,55 @@ class App(_BaseClass):  # type: ignore[misc]
     def _save(self) -> None:
         items = self.thumb.items
         fmt = self._fmt.get()
-        parts: list[str] = []
-        for item in items:
-            text = item.ocr_markdown if fmt == "markdown" else item.ocr_text
-            if text:
-                sep = (f"<!-- {item.label} -->"
-                       if fmt == "markdown" else f"=== {item.label} ===")
-                parts.append(f"{sep}\n\n{text}")
+        ext, ftypes = ((".md",  [(T("ftype_md"),  "*.md")])
+                       if fmt == "markdown" else (".txt", [(T("ftype_txt"), "*.txt")]))
+
+        def item_text(item: PageItem) -> str:
+            return item.ocr_markdown if fmt == "markdown" else item.ocr_text
+
+        def item_sep(item: PageItem) -> str:
+            return (f"<!-- {item.label} -->"
+                    if fmt == "markdown" else f"=== {item.label} ===")
+
+        if self._out_mode.get() == "per_file":
+            groups: dict[Path, list[PageItem]] = {}
+            for item in items:
+                if item_text(item):
+                    groups.setdefault(item.source_path, []).append(item)
+            if not groups:
+                messagebox.showinfo(T("dlg_no_result_title"), T("dlg_no_result_msg"))
+                return
+            dir_kw = {"initialdir": self._last_input_dir} if self._last_input_dir else {}
+            dir_path = filedialog.askdirectory(title=T("dlg_save_title"), **dir_kw)
+            if not dir_path:
+                return
+            out_dir = Path(dir_path)
+            used_names: set[str] = set()
+            saved = 0
+            for source_path, group_items in groups.items():
+                combined = "\n\n".join(
+                    f"{item_sep(it)}\n\n{item_text(it)}" for it in group_items)
+                base_name = source_path.stem
+                name = base_name
+                n = 2
+                while name in used_names:
+                    name = f"{base_name}_{n}"
+                    n += 1
+                used_names.add(name)
+                (out_dir / f"{name}{ext}").write_text(combined, encoding="utf-8")
+                saved += 1
+            self._status.set(T("status_saved_multi", n=saved, dir=str(out_dir)))
+            return
+
+        parts = [f"{item_sep(item)}\n\n{item_text(item)}"
+                  for item in items if item_text(item)]
         if not parts:
             messagebox.showinfo(T("dlg_no_result_title"), T("dlg_no_result_msg"))
             return
         combined = "\n\n".join(parts)
-        ext, ftypes = ((".md",  [(T("ftype_md"),  "*.md")])
-                       if fmt == "markdown" else (".txt", [(T("ftype_txt"), "*.txt")]))
+        save_kw = {"initialdir": self._last_input_dir} if self._last_input_dir else {}
         path = filedialog.asksaveasfilename(
-            defaultextension=ext, filetypes=ftypes, title=T("dlg_save_title"))
+            defaultextension=ext, filetypes=ftypes, title=T("dlg_save_title"), **save_kw)
         if path:
             Path(path).write_text(combined, encoding="utf-8")
             self._status.set(T("status_saved", path=path))
